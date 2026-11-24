@@ -41,8 +41,14 @@ def compute_correlations(
 ) -> Tuple[pd.DataFrame, pd.Series]:
     """
     Computes correlation matrix and feature correlations with the target.
+    Filters out constant/zero-variance features to prevent divide-by-zero warnings.
     """
     numeric_df = df.select_dtypes(include=[np.number])
+    valid_cols = [
+        c for c in numeric_df.columns
+        if numeric_df[c].nunique(dropna=True) > 1 and numeric_df[c].std() > 1e-12
+    ]
+    numeric_df = numeric_df[valid_cols]
     corr_matrix = numeric_df.corr(method=method)
     
     target_corr = pd.Series(dtype=float)

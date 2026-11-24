@@ -92,11 +92,33 @@ def drop_high_missing_columns(
     return df_filtered, dropped
 
 
+def drop_constant_columns(
+    df: pd.DataFrame,
+    preserve_cols: Optional[List[str]] = None
+) -> Tuple[pd.DataFrame, List[str]]:
+    """
+    Identifies and drops columns with zero variance (constant columns where nunique <= 1, ignoring NaNs).
+    Preserves protected columns (e.g. target, timestamps).
+    """
+    preserve = set(preserve_cols or [])
+    dropped = []
+    
+    for col in df.columns:
+        if col not in preserve:
+            if df[col].nunique(dropna=True) <= 1:
+                dropped.append(col)
+                
+    df_filtered = df.drop(columns=dropped)
+    if dropped:
+        logger.info(f"Dropped {len(dropped)} constant/zero-variance columns: {dropped}")
+    return df_filtered, dropped
+
+
 def apply_domain_guards(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, int]]:
     """
     Enforces EV physical domain guards:
     - Speed cannot be negative or > 150 km/h
-    - Cell delta voltage (cell_delta_mv) cannot be negative
+    - Cell delta voltage (cell_delta_mv, cell_delta) valid range 0 to 500 mV (cannot be negative)
     - SOC cannot be outside [0, 100]
     - Pack voltage cannot be <= 0
     """
@@ -222,6 +244,7 @@ def clean_dataset(
         "duplicates_removed": 0,
         "dropped_unconfirmed_cols": [],
         "dropped_high_missing_cols": {},
+        "dropped_constant_cols": [],
         "domain_violations_corrected": {},
         "outlier_treatment": {},
         "final_rows": 0,
@@ -265,6 +288,13 @@ def clean_dataset(
         exclude_cols=non_feature_exclusions
     )
     audit["outlier_treatment"] = outlier_stats
+
+    # 7. Drop constant (zero-variance) columns
+    df_cleaned, dropped_constant = drop_constant_columns(
+        df_cleaned,
+        preserve_cols=list(protected)
+    )
+    audit["dropped_constant_cols"] = dropped_constant
 
     audit["final_rows"] = int(df_cleaned.shape[0])
     audit["final_cols"] = int(df_cleaned.shape[1])

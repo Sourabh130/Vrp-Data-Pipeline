@@ -71,6 +71,7 @@ def test_ev_domain_guards():
     df_raw = pd.DataFrame({
         "speed_kmh": [-15.0, 45.0, 180.0, 90.0],
         "cell_delta_mv": [-25.0, 5.0, 12.0, -2.0],
+        "cell_delta": [-10.0, 25.0, 60.0, 600.0],
         "soc": [-5.0, 80.0, 105.0, 50.0],
         "pack_voltage": [350.0, 360.0, 370.0, 380.0]
     })
@@ -81,9 +82,14 @@ def test_ev_domain_guards():
     assert df_clean["speed_kmh"].max() <= 150.0
     assert violations.get("speed_kmh", 0) == 2
 
-    # Cell delta assertions (cannot be negative)
+    # Cell delta assertions (millivolts: valid range 0 to 500 mV, valid 25 and 60 mV not clipped to 1.0)
     assert df_clean["cell_delta_mv"].min() >= 0.0
     assert violations.get("cell_delta_mv", 0) == 2
+    assert df_clean["cell_delta"].min() >= 0.0
+    assert df_clean["cell_delta"].iloc[1] == 25.0
+    assert df_clean["cell_delta"].iloc[2] == 60.0
+    assert df_clean["cell_delta"].max() <= 500.0
+    assert violations.get("cell_delta", 0) == 2
 
     # SOC assertions
     assert df_clean["soc"].min() >= 0.0
@@ -225,3 +231,51 @@ def test_cleaning_report_structure(temp_pipeline_env):
     ]
     for key in required_keys:
         assert key in data, f"Key '{key}' missing from cleaning report JSON!"
+
+
+def test_drop_missing_target_rows(tmp_path):
+    """Verifies that rows with NaN in the target variable are dropped and logged in cleaning_report.json."""
+    raw_dir = tmp_path / "raw"
+    processed_dir = tmp_path / "processed"
+    outputs_dir = tmp_path / "outputs"
+    raw_dir.mkdir(parents=True)
+    processed_dir.mkdir(parents=True)
+    outputs_dir.mkdir(parents=True)
+
+    sample_csv = raw_dir / "sample_ev_nan_target.csv"
+    df = generate_synthetic_vrp_data(num_rows=100)
+    # Inject 15 NaNs into the target column
+    df.loc[:14, "power_kw"] = np.nan
+    df.to_csv(sample_csv, index=False)
+
+    report_file = outputs_dir / "cleaning_report.json"
+    config = PipelineConfig(
+        input_path=str(sample_csv),
+        target_col="power_kw",
+        split_mode="chronological",
+        output_dir=str(processed_dir),
+        plots_dir=str(outputs_dir / "plots"),
+        report_path=str(report_file)
+    )
+    report = run_pipeline(config)
+
+    assert report["cleaning"]["dropped_missing_target_rows"] == 15
+    assert report["cleaning"]["final_rows"] == 85
+
+    # Verify no NaNs in train/val/test splits
+    train_df = pd.read_csv(processed_dir / "train.csv")
+    assert train_df["power_kw"].isna().sum() == 0
+
+
+def test_drop_constant_columns(synthetic_df):
+    """Verifies that constant (zero-variance) columns are dropped before correlation analysis."""
+    from src.cleaning import drop_constant_columns
+    df = synthetic_df.copy()
+    df["constant_num"] = 42.0
+    df["constant_str"] = "STATIC"
+
+    df_filtered, dropped = drop_constant_columns(df, preserve_cols=["power_kw"])
+    assert "constant_num" in dropped
+    assert "constant_str" in dropped
+    assert "constant_num" not in df_filtered.columns
+    assert "constant_str" not in df_filtered.columns

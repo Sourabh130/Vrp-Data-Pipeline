@@ -1,6 +1,6 @@
 {
-  "execution_timestamp_utc": "2026-11-22T13:43:34.261724Z",
-  "elapsed_seconds": 16.55,
+  "execution_timestamp_utc": "2026-11-24T09:03:40.088060Z",
+  "elapsed_seconds": 2.83,
   "configuration": {
     "input_path": "E:\\vrp-data-pipeline\\data\\raw\\voltlens-2026-10-27-04-39.csv",
     "target_column": "power_kw",
@@ -130,6 +130,16 @@
       "regen_level_unconfirmed": 0.6228,
       "vcu_charge_limit_a": 0.6066
     },
+    "dropped_constant_cols": [
+      "current_sign_verified",
+      "aerosol_sensor_unconfirmed",
+      "derate_flag_unconfirmed",
+      "fault_rank_unconfirmed",
+      "smoke_sensor_unconfirmed",
+      "soc_cal_flag_unconfirmed",
+      "thermal_runaway_reason_unconfirmed",
+      "source_file"
+    ],
     "domain_violations_corrected": {
       "speed_kmh": 19,
       "speed_alt3": 19,
@@ -290,59 +300,49 @@
         "strategy_applied": "cap"
       }
     },
-    "final_rows": 3531,
-    "final_cols": 51,
-    "target_column": "power_kw"
+    "final_rows": 3332,
+    "final_cols": 43,
+    "target_column": "power_kw",
+    "dropped_missing_target_rows": 199
   },
   "exploratory_analysis": {
     "missingness_summary": {
-      "ccs_request_a": 59.93,
-      "batt_pump_duty": 59.81,
-      "ptc_temp": 59.42,
-      "motor_winding_temp": 59.05,
-      "compressor_temp": 58.94,
-      "dcdc_out_a": 58.79,
-      "inverter_temp": 58.45,
-      "dcdc_temp": 58.34,
-      "mapped_ah_unconfirmed": 53.36,
-      "speed_alt3": 52.73,
-      "soc_since_full_unconfirmed": 52.17,
-      "soc_cal_flag_unconfirmed": 49.5,
-      "aerosol_sensor_unconfirmed": 47.24,
-      "smoke_sensor_unconfirmed": 44.72,
-      "thermal_runaway_reason_unconfirmed": 43.19,
-      "fault_rank_unconfirmed": 40.33,
-      "derate_flag_unconfirmed": 39.11,
-      "soc_reference": 37.52,
-      "max_discharge_kw": 35.83,
-      "max_charge_a": 35.63,
-      "cell_temp_min": 34.83,
-      "cell_temp_max": 34.13,
-      "charging_status": 32.51,
-      "coolant_out": 32.43,
-      "insulation_kohm": 31.38,
-      "coolant_in": 30.64,
-      "bms_mode": 29.23,
-      "batt_temp": 29.17,
-      "lat": 27.7,
-      "lon": 27.7,
-      "aux_voltage": 21.64,
-      "current_sign_verified": 13.71,
-      "min_cell_mv": 7.73,
-      "max_cell_mv": 7.59,
-      "power_kw": 5.64,
-      "avg_cell_mv": 5.61,
-      "pack_voltage": 5.61,
-      "cell_delta_mv": 5.38,
-      "max_regen_kw": 4.45,
-      "balancing": 4.28,
-      "min_cell_id": 4.16,
-      "pack_current": 4.11,
-      "max_cell_id": 3.99,
-      "soc": 3.99,
-      "last_motion_at": 1.84,
-      "motor_rpm": 0.91,
-      "speed_kmh": 0.06
+      "ccs_request_a": 59.3,
+      "batt_pump_duty": 59.3,
+      "ptc_temp": 58.76,
+      "compressor_temp": 58.73,
+      "motor_winding_temp": 58.52,
+      "dcdc_out_a": 58.31,
+      "inverter_temp": 58.22,
+      "dcdc_temp": 57.98,
+      "speed_alt3": 51.68,
+      "mapped_ah_unconfirmed": 51.11,
+      "soc_since_full_unconfirmed": 49.85,
+      "soc_reference": 34.48,
+      "max_discharge_kw": 32.68,
+      "max_charge_a": 32.47,
+      "cell_temp_min": 31.66,
+      "cell_temp_max": 30.94,
+      "charging_status": 29.35,
+      "lat": 29.35,
+      "lon": 29.35,
+      "coolant_out": 29.11,
+      "insulation_kohm": 28.03,
+      "coolant_in": 27.22,
+      "bms_mode": 25.9,
+      "batt_temp": 25.84,
+      "aux_voltage": 20.59,
+      "min_cell_mv": 4.02,
+      "max_cell_mv": 3.84,
+      "last_motion_at": 1.86,
+      "cell_delta_mv": 1.59,
+      "motor_rpm": 0.45,
+      "max_regen_kw": 0.42,
+      "balancing": 0.36,
+      "min_cell_id": 0.21,
+      "max_cell_id": 0.03,
+      "soc": 0.03,
+      "speed_kmh": 0.03
     },
     "top_features_correlated_with_target": [
       {
@@ -398,27 +398,26 @@
     "train_ratio": 0.7,
     "val_ratio": 0.15,
     "test_ratio": 0.15,
-    "total_samples": 3531,
+    "total_samples": 3332,
     "metadata_excluded_from_features": [
       "ts",
-      "source_file",
       "ts_utc"
     ],
     "train_range": [
       0,
-      2471
+      2332
     ],
     "val_range": [
-      2471,
-      3001
+      2332,
+      2832
     ],
     "test_range": [
-      3001,
-      3531
+      2832,
+      3332
     ],
-    "train_samples": 2471,
-    "val_samples": 530,
-    "test_samples": 530
+    "train_samples": 2332,
+    "val_samples": 500,
+    "test_samples": 500
   },
   "feature_selection": {
     "zero_variance_dropped": [],
@@ -445,28 +444,28 @@
       {
         "feature_1": "soc",
         "feature_2": "batt_temp",
-        "correlation": 0.9118,
+        "correlation": 0.9186,
         "dropped": "soc",
         "retained": "batt_temp"
       },
       {
         "feature_1": "pack_voltage",
         "feature_2": "min_cell_mv",
-        "correlation": 0.967,
+        "correlation": 0.9667,
         "dropped": "pack_voltage",
         "retained": "min_cell_mv"
       },
       {
         "feature_1": "min_cell_mv",
         "feature_2": "max_cell_mv",
-        "correlation": 0.9859,
+        "correlation": 0.9861,
         "dropped": "max_cell_mv",
         "retained": "min_cell_mv"
       },
       {
         "feature_1": "min_cell_mv",
         "feature_2": "avg_cell_mv",
-        "correlation": 0.967,
+        "correlation": 0.9667,
         "dropped": "avg_cell_mv",
         "retained": "min_cell_mv"
       },
@@ -480,49 +479,49 @@
       {
         "feature_1": "coolant_in",
         "feature_2": "coolant_out",
-        "correlation": 0.9964,
+        "correlation": 0.9966,
         "dropped": "coolant_out",
         "retained": "coolant_in"
       },
       {
         "feature_1": "insulation_kohm",
         "feature_2": "charging_status",
-        "correlation": 0.934,
+        "correlation": 0.9552,
         "dropped": "insulation_kohm",
         "retained": "charging_status"
       },
       {
         "feature_1": "speed_kmh",
         "feature_2": "motor_rpm",
-        "correlation": 0.992,
+        "correlation": 0.9907,
         "dropped": "speed_kmh",
         "retained": "motor_rpm"
       },
       {
         "feature_1": "lat",
         "feature_2": "lon",
-        "correlation": 0.9528,
+        "correlation": 0.9494,
         "dropped": "lat",
         "retained": "lon"
       },
       {
         "feature_1": "lon",
         "feature_2": "last_motion_at",
-        "correlation": 0.9769,
+        "correlation": 0.9766,
         "dropped": "last_motion_at",
         "retained": "lon"
       },
       {
         "feature_1": "lon",
         "feature_2": "sample_at",
-        "correlation": 0.9819,
+        "correlation": 0.9832,
         "dropped": "sample_at",
         "retained": "lon"
       },
       {
         "feature_1": "batt_pump_duty",
         "feature_2": "cell_temp_max",
-        "correlation": 0.9008,
+        "correlation": 0.9016,
         "dropped": "batt_pump_duty",
         "retained": "cell_temp_max"
       },
@@ -543,27 +542,27 @@
       {
         "feature_1": "mapped_ah_unconfirmed",
         "feature_2": "soc_since_full_unconfirmed",
-        "correlation": 0.9711,
+        "correlation": 0.972,
         "dropped": "soc_since_full_unconfirmed",
         "retained": "mapped_ah_unconfirmed"
       },
       {
         "feature_1": "max_regen_kw",
         "feature_2": "soc_reference",
-        "correlation": 0.9409,
+        "correlation": 0.9423,
         "dropped": "soc_reference",
         "retained": "max_regen_kw"
       },
       {
         "feature_1": "motor_rpm",
         "feature_2": "speed_alt3",
-        "correlation": 0.9995,
+        "correlation": 1.0,
         "dropped": "motor_rpm",
         "retained": "speed_alt3"
       }
     ],
     "k_best_dropped": [],
-    "selected_features_count": 30,
+    "selected_features_count": 23,
     "selected_features": [
       "pack_current",
       "min_cell_mv",
@@ -573,8 +572,6 @@
       "coolant_in",
       "aux_voltage",
       "lon",
-      "current_sign_verified",
-      "aerosol_sensor_unconfirmed",
       "balancing",
       "bms_mode",
       "ccs_request_a",
@@ -583,25 +580,20 @@
       "compressor_temp",
       "dcdc_out_a",
       "dcdc_temp",
-      "derate_flag_unconfirmed",
-      "fault_rank_unconfirmed",
       "inverter_temp",
       "mapped_ah_unconfirmed",
       "max_discharge_kw",
       "max_regen_kw",
       "motor_winding_temp",
       "ptc_temp",
-      "smoke_sensor_unconfirmed",
-      "soc_cal_flag_unconfirmed",
-      "speed_alt3",
-      "thermal_runaway_reason_unconfirmed"
+      "speed_alt3"
     ]
   },
   "preprocessing": {
     "scaler_type": "standard",
-    "numeric_columns_count": 30,
+    "numeric_columns_count": 23,
     "categorical_columns_count": 0,
-    "final_feature_count": 30,
+    "final_feature_count": 23,
     "final_feature_names": [
       "pack_current",
       "min_cell_mv",
@@ -611,8 +603,6 @@
       "coolant_in",
       "aux_voltage",
       "lon",
-      "current_sign_verified",
-      "aerosol_sensor_unconfirmed",
       "balancing",
       "bms_mode",
       "ccs_request_a",
@@ -621,18 +611,13 @@
       "compressor_temp",
       "dcdc_out_a",
       "dcdc_temp",
-      "derate_flag_unconfirmed",
-      "fault_rank_unconfirmed",
       "inverter_temp",
       "mapped_ah_unconfirmed",
       "max_discharge_kw",
       "max_regen_kw",
       "motor_winding_temp",
       "ptc_temp",
-      "smoke_sensor_unconfirmed",
-      "soc_cal_flag_unconfirmed",
-      "speed_alt3",
-      "thermal_runaway_reason_unconfirmed"
+      "speed_alt3"
     ],
     "post_processing_nans": {
       "train": 0,

@@ -21,7 +21,7 @@ import pandas as pd
 from sklearn.model_selection._split import train_test_split
 
 from src.analysis import run_full_analysis
-from src.cleaning import clean_dataset, to_snake_case
+from src.cleaning import clean_dataset, drop_constant_columns, to_snake_case
 from src.config import (
     CLEANING_REPORT_PATH,
     CORR_THRESHOLD,
@@ -149,7 +149,24 @@ def run_pipeline(config: PipelineConfig) -> Dict[str, Any]:
             f"Available columns: {list(cleaned_df.columns)}"
         )
 
-    # 3. Exploratory Analysis & High-Res PNG Visualizations
+    # 3. Handle missing target rows (drop rows where target is NaN instead of imputing)
+    missing_target_count = int(cleaned_df[target_clean].isna().sum())
+    if missing_target_count > 0:
+        logger.info(f"Dropping {missing_target_count} rows with NaN in target '{target_clean}'.")
+        cleaned_df = cleaned_df.dropna(subset=[target_clean]).reset_index(drop=True)
+    cleaning_audit["dropped_missing_target_rows"] = missing_target_count
+
+    # 4. Drop constant (zero-variance) columns before running correlation analysis
+    protected = set([target_clean, "ts_utc", "ts_utc_original", "ts", "timestamp"] + (config.extra_metadata_cols or []))
+    cleaned_df, constant_cols = drop_constant_columns(cleaned_df, preserve_cols=list(protected))
+    if constant_cols:
+        existing_const = set(cleaning_audit.get("dropped_constant_cols", []))
+        cleaning_audit["dropped_constant_cols"] = sorted(list(existing_const.union(constant_cols)))
+
+    cleaning_audit["final_rows"] = int(cleaned_df.shape[0])
+    cleaning_audit["final_cols"] = int(cleaned_df.shape[1])
+
+    # 5. Exploratory Analysis & High-Res PNG Visualizations
     analysis_meta = run_full_analysis(
         df=cleaned_df,
         target_col=target_clean,
@@ -157,7 +174,7 @@ def run_pipeline(config: PipelineConfig) -> Dict[str, Any]:
         missing_threshold=config.missing_col_threshold
     )
 
-    # 4. Data Splitting (Before fitting selectors, imputers, scalers)
+    # 6. Data Splitting (Before fitting selectors, imputers, scalers)
     X_train, X_val, X_test, y_train, y_val, y_test, split_meta = split_data(
         df=cleaned_df,
         target_col=target_clean,
@@ -286,7 +303,9 @@ def run_pipeline(config: PipelineConfig) -> Dict[str, Any]:
     print(f"  Target Variable      : {target_clean}")
     print(f"  Initial Shape        : {cleaning_audit['initial_rows']} rows x {cleaning_audit['initial_cols']} cols")
     print(f"  Cleaned Shape        : {cleaning_audit['final_rows']} rows x {cleaning_audit['final_cols']} cols")
+    print(f"  Dropped Missing-Target: {cleaning_audit.get('dropped_missing_target_rows', 0)} rows")
     print(f"  Dropped High-Missing : {list(cleaning_audit['dropped_high_missing_cols'].keys())}")
+    print(f"  Dropped Constant     : {cleaning_audit.get('dropped_constant_cols', [])}")
     print(f"  Dropped Collinear    : {feature_sel_summary['collinear_dropped']}")
     print(f"  Domain Violations    : {cleaning_audit['domain_violations_corrected']}")
     total_outliers = sum(v["outlier_count"] for v in cleaning_audit["outlier_treatment"].values())

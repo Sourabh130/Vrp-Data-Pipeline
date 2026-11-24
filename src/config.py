@@ -35,9 +35,9 @@ DOMAIN_GUARDS: Dict[str, Dict[str, Any]] = {
     "speed_valid": {"min": 0.0, "max": 150.0},
     "speed_alt3": {"min": 0.0, "max": 150.0},
     
-    # Cell Delta: voltage difference between max and min cell (must be non-negative)
-    "cell_delta_mv": {"min": 0.0, "max": 1000.0},
-    "cell_delta": {"min": 0.0, "max": 1.0},
+    # Cell Delta: voltage difference between max and min cell (millivolts: valid range 0 to 500 mV)
+    "cell_delta_mv": {"min": 0.0, "max": 500.0},
+    "cell_delta": {"min": 0.0, "max": 500.0},
     
     # State of Charge (SOC): percentage [0, 100]
     "soc": {"min": 0.0, "max": 100.0},

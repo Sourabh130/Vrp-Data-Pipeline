@@ -153,6 +153,7 @@ if "pipeline_report" in st.session_state:
         st.markdown("---")
         m1, m2, m3 = st.columns(3)
         with m1:
+            st.info(f"**Missing-Target Dropped:** {rep['cleaning'].get('dropped_missing_target_rows', 0)}")
             st.info(f"**Duplicates Dropped:** {rep['cleaning']['duplicates_removed']}")
             st.info(f"**High-Missing Dropped:** {len(rep['cleaning']['dropped_high_missing_cols'])}")
         with m2:

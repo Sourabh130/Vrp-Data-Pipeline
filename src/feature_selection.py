@@ -59,7 +59,8 @@ class FeatureSelector(BaseEstimator, TransformerMixin):
         # 1. Identify zero-variance features
         self.zero_variance_cols_ = [
             c for c in current_cols
-            if X[c].nunique(dropna=False) <= 1
+            if X[c].nunique(dropna=True) <= 1
+            or (pd.api.types.is_numeric_dtype(X[c]) and len(X[c].dropna()) > 0 and X[c].dropna().std() <= 1e-12)
         ]
         if self.zero_variance_cols_:
             logger.info(f"Identified {len(self.zero_variance_cols_)} zero-variance columns: {self.zero_variance_cols_}")
@@ -68,6 +69,11 @@ class FeatureSelector(BaseEstimator, TransformerMixin):
 
         # 2. Identify collinear features among numeric columns
         numeric_df = X[remaining_cols].select_dtypes(include=[np.number])
+        valid_num_cols = [
+            c for c in numeric_df.columns
+            if numeric_df[c].nunique(dropna=True) > 1 and numeric_df[c].std() > 1e-12
+        ]
+        numeric_df = numeric_df[valid_num_cols]
         if len(numeric_df.columns) > 1:
             corr_matrix = numeric_df.corr().abs()
             
